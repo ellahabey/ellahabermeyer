@@ -4,9 +4,62 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Resume — Ella Habermeyer</title>
+    <!-- Bootstrap 5 CDN -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <!-- Your existing site styles (for nav/footer) -->
     <link rel="stylesheet" href="../styles/styles.css">
+    <style>
+      .section-heading {
+        color: #6d2b4e;
+        font-size: 1rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        border-bottom: 2px solid #6d2b4e;
+        padding-bottom: 4px;
+        margin-top: 1.75rem;
+        margin-bottom: 1rem;
+      }
+      .resume-title {
+        color: #6d2b4e;
+        font-size: 2rem;
+        font-weight: 700;
+        text-align: center;
+        margin-bottom: 2rem;
+      }
+      .job-title {
+        font-weight: 600;
+        margin-bottom: 0.1rem;
+      }
+      .job-title span {
+        font-weight: 400;
+        color: #555;
+      }
+      .resume-list li {
+        font-size: 0.95rem;
+        color: #444;
+        margin-bottom: 0.25rem;
+      }
+      .award-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: 0.3rem;
+      }
+      .award-org {
+        font-weight: 600;
+      }
+      .award-name {
+        color: #555;
+        font-size: 0.95rem;
+      }
+      .skills-row {
+        font-size: 0.95rem;
+        margin-bottom: 0.4rem;
+      }
+    </style>
   </head>
-  <body>
+  <body class="bg-light">
 
     <nav class="site-nav">
       <a href="../index.html" class="nav-home">← Back to Home</a>
@@ -18,56 +71,78 @@
       </ul>
     </nav>
 
-   <!--RESUME SECTION-->
-<div class="resume-block">
-    <h2>Resume</h2>
-    <div class="resume-block">
-        <h3>Education</h3>
-        <p><strong>Brigham Young University</strong>-- B.A. in Political Science and Journalism, expected June 2027</p>
+    <!-- RESUME SECTION -->
+    <div class="container py-5">
+      <div class="bg-white border rounded p-4 p-md-5 mx-auto" style="max-width: 860px;">
+
+        <h1 class="resume-title">Resume</h1>
+
+        <!-- Education -->
+        <div class="section-heading">Education</div>
+        <p class="job-title">
+          Brigham Young University
+          <span>— B.A. in Political Science and Journalism, expected June 2027</span>
+        </p>
+
+        <!-- Experience -->
+        <div class="section-heading">Experience</div>
+
+        <p class="job-title">The Daily Universe <span>— Reporter, 2025–present</span></p>
+        <ul class="resume-list">
+          <li>Covered Utah Valley topics, including SNAP benefits, local mayoral elections, federal grant cuts, Sundance Film Festival, and the Charlie Kirk shooting</li>
+        </ul>
+
+        <p class="job-title">The Daily Universe <span>— Metro Editor, 2025–present</span></p>
+        <ul class="resume-list">
+          <li>Edited and assigned stories for the Metro section, which covers Utah Valley news and politics</li>
+        </ul>
+
+        <p class="job-title">BYU Public Health Department <span>— Journalistic Writer, 2025–2026</span></p>
+        <ul class="resume-list">
+          <li>Wrote articles covering mental health, nutrition, and public health research for the BYU Public Health Department's website</li>
+        </ul>
+
+        <p class="job-title">BYU Political Science Department <span>— Research Assistant, 2024–2025</span></p>
+        <ul class="resume-list">
+          <li>Assisted with research on political polarization and media consumption, including data collection and analysis</li>
+        </ul>
+
+        <p class="job-title">MWEG <span>— Media Literacy Intern, 2024–2025</span></p>
+        <ul class="resume-list">
+          <li>Created educational materials and workshops on media literacy for high school students, focusing on identifying misinformation and understanding media bias</li>
+        </ul>
+
+        <!-- Awards -->
+        <div class="section-heading">Awards</div>
+        <div class="award-row">
+          <span class="award-org">Society of Professional Journalists</span>
+          <span class="award-name">First Place, Investigative Reporting — 2026</span>
+        </div>
+        <div class="award-row">
+          <span class="award-org">MOE's</span>
+          <span class="award-name">Best Political Reporting — 2025</span>
+        </div>
+        <div class="award-row">
+          <span class="award-org">MOE's</span>
+          <span class="award-name">Best Multimedia Storytelling — 2026</span>
+        </div>
+
+        <!-- Skills -->
+        <div class="section-heading">Skills</div>
+        <div class="skills-row"><strong>Reporting:</strong> Investigative reporting, political reporting, social issues reporting</div>
+        <div class="skills-row"><strong>Multimedia:</strong> Video production, data visualization, audio editing</div>
+        <div class="skills-row"><strong>Data Analysis:</strong> Excel, Tableau, SPSS</div>
+        <div class="skills-row"><strong>Other:</strong> Social media management, public speaking, media literacy education</div>
+
+      </div>
     </div>
-    <div class="resume-block">
-    <h3>Experiences</h3>
-    <p><strong>The Daily Universe</strong>-- Reporter, 2025-present</p>
-    <ul>
-    <li>Covered Utah Valley topics, including SNAP benefits, local mayoral elections, federal grant cuts, Sundance Film Festival, and the Charlie Kirk shooting</li>
-    </ul>
 
-    <p><strong>The Daily Universe</strong>-- Metro Editor, 2025-present</p>
-    <ul>
-    <li>Edited and assigned stories for the Metro section, which covers Utah Valley news and politics</li>
-    </ul>
-<p><strong>BYU Public Health Department</strong>-- Journalistic Writer, 2025-2026</p>
-<ul>
-<li>Wrote articles for the BYU Public Health Department's website, covering topics such as mental health, nutrition, and public health research</li>
-</ul>
+    <!-- FOOTER -->
+    <footer class="site-footer">
+      <p><a href="#top">Back to Top</a>&nbsp;<a href="../index.html">Main site</a></p>
+      <p class="footer-note">Copyright &copy; 2026 Ella Habermeyer. All rights reserved.</p>
+    </footer>
 
-<p><strong>BYU Political Science Department</strong>-- Research Assistant, 2024-2025</p>
-<ul>
-    <li>Assisted with research on political polarization and media consumption, including data collection and analysis</li>
-</ul>
-<p><strong>MWEG</strong>-- Media Literacy Intern, 2024-2025</p>
-<ul>
-    <li>Created educational materials and workshops on media literacy for high school students, focusing on identifying misinformation and understanding media bias</li>
-</ul>
-</div>
-<div class="resume-block">
-    <h3>Awards</h3>
-    <p><strong>Society of Professional Journalists</strong>-- First Place, Investigative Reporting, 2026</p>
-    <p><strong>MOE's</strong>-- Best Political Reporting, 2025</p>
-    <p><strong>MOE's</strong>-- Best Multimedia Storytelling, 2026</p>
-</div>
-<div class="resume-block">
-    <h3>Skills</h3>
-    <p><strong>Reporting:</strong> Investigative reporting, political reporting, social issues reporting</p>
-    <p><strong>Multimedia:</strong> Video production, data visualization, audio editing</p>
-    <p><strong>Data Analysis:</strong> Excel, Tableau, SPSS</p>
-    <p><strong>Other:</strong> Social media management, public speaking, media literacy education</p>
-</div>
-</div>
-<!--FOOTER-->
-<footer class="site-footer">
-    <p><a href="#top">Back to Top</a>&nbsp;<a href="../index.html">Main site</a></p>
-    <p class="footer-note">Copyright &copy; 2026 Ella Habermeyer. All rights reserved.</p>
-</footer>
-</body>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
 </html>
