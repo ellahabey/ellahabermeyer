@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Newsroom</title>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+ 
+    :root {
+      --ink: #0d0d0d;
+      --bg: #1a1a2e;
+      --panel: #16213e;
+      --paper: #f0e6c8;
+      --paper-dark: #d4c9a8;
+      --red: #e63946;
+      --red-dark: #9b2226;
+      --gold: #ffd60a;
+      --gold-dark: #e6a817;
+      --blue: #457b9d;
+      --muted: #6b7280;
+      --pixel-border: #f0e6c8;
+    }
+ 
+    @font-face {
+      font-family: 'Press Start 2P';
+    }
+ 
+    body {
+      background: var(--bg);
+      background-image:
+        repeating-linear-gradient(0deg, transparent, transparent 31px, rgba(255,255,255,0.015) 31px, rgba(255,255,255,0.015) 32px),
+        repeating-linear-gradient(90deg, transparent, transparent 31px, rgba(255,255,255,0.015) 31px, rgba(255,255,255,0.015) 32px);
+      color: var(--paper);
+      font-family: 'VT323', monospace;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem 1rem;
+    }
+ 
+    /* ══ SCREENS ══ */
+    .screen { display: none; max-width: 720px; width: 100%; }
+    .screen.active { display: block; animation: fadeIn 0.3s steps(6); }
+ 
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+ 
+    /* ══ SCENE WRAPPER (image + dialogue) ══ */
+    .scene {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+ 
+    /* ══ SCENE IMAGE ══ */
+    .scene-img-wrap {
+      width: 100%;
+      height: 240px;
+      overflow: hidden;
+      image-rendering: pixelated;
+      border: 3px solid var(--pixel-border);
+      border-bottom: none;
+      position: relative;
+      background: #0a0a1a;
+    }
+ 
+    .scene-img-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+    }
+ 
+    /* pixel character overlay (normalella.png) used when no bg image */
+    .scene-char {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      height: 80%;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+    }
+ 
+    /* ══ PIXEL DIALOGUE BOX ══ */
+    .dialogue-box {
+      background: var(--panel);
+      border: 3px solid var(--pixel-border);
+      padding: 0;
+      position: relative;
+    }
+ 
+    /* top notch bar */
+    .dialogue-top {
+      background: var(--pixel-border);
+      padding: 4px 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+ 
+    .dialogue-top .speaker {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.5rem;
+      color: var(--ink);
+      letter-spacing: 0.05em;
+    }
+ 
+    .dialogue-top .d-dots {
+      margin-left: auto;
+      display: flex;
+      gap: 4px;
+    }
+    .dialogue-top .d-dots span {
+      width: 6px; height: 6px;
+      background: var(--ink);
+      display: inline-block;
+    }
+ 
+    .dialogue-inner {
+      padding: 1.25rem 1.5rem 1rem;
+    }
+ 
+    .dialogue-text {
+      font-family: 'VT323', monospace;
+      font-size: 1.35rem;
+      line-height: 1.6;
+      color: var(--paper);
+      margin-bottom: 1.25rem;
+      min-height: 3.5rem;
+    }
+ 
+    /* ══ CHOICES ══ */
+    .choices {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+ 
+    .choice-btn {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      background: transparent;
+      border: 2px solid var(--muted);
+      padding: 0.65rem 1rem;
+      cursor: pointer;
+      text-align: left;
+      color: var(--paper);
+      font-family: 'VT323', monospace;
+      font-size: 1.15rem;
+      line-height: 1.4;
+      transition: none;
+      image-rendering: pixelated;
+    }
+ 
+    .choice-btn:hover,
+    .choice-btn:focus {
+      border-color: var(--pixel-border);
+      background: rgba(240, 230, 200, 0.08);
+      color: var(--gold);
+      outline: none;
+    }
+ 
+    .choice-btn:hover .choice-letter,
+    .choice-btn:focus .choice-letter {
+      color: var(--gold);
+    }
+ 
+    .choice-letter {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.5rem;
+      color: var(--red);
+      min-width: 1.5rem;
+      padding-top: 0.25rem;
+      flex-shrink: 0;
+    }
+ 
+    /* ══ PROGRESS ══ */
+    .progress-wrap {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 1rem;
+    }
+    .progress-pip {
+      height: 6px;
+      flex: 1;
+      background: var(--muted);
+    }
+    .progress-pip.done { background: var(--red); }
+ 
+    /* ══ EYEBROW ══ */
+    .eyebrow {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.45rem;
+      letter-spacing: 0.15em;
+      color: var(--red);
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+ 
+    /* ══ INTRO SCREEN ══ */
+    #screen-intro {
+      text-align: center;
+    }
+ 
+    .intro-scene {
+      width: 100%;
+      height: 240px;
+      overflow: hidden;
+      border: 3px solid var(--pixel-border);
+      border-bottom: none;
+      image-rendering: pixelated;
+      position: relative;
+      background: #0a0a1a;
+    }
+    .intro-scene img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+    }
+ 
+    .intro-dialogue {
+      background: var(--panel);
+      border: 3px solid var(--pixel-border);
+      padding: 0;
+    }
+ 
+    .intro-inner {
+      padding: 1.5rem 2rem 1.25rem;
+      text-align: left;
+    }
+ 
+    .masthead {
+      font-family: 'Press Start 2P', monospace;
+      font-size: clamp(0.7rem, 2.5vw, 1.1rem);
+      color: var(--paper);
+      line-height: 1.8;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+ 
+    .masthead span {
+      color: var(--red);
+    }
+ 
+    #typewriter-text {
+      font-family: 'VT323', monospace;
+      font-size: 1.3rem;
+      line-height: 1.7;
+      color: var(--paper-dark);
+    }
+ 
+    .pixel-cursor {
+      display: inline-block;
+      width: 10px;
+      height: 1.1em;
+      background: var(--paper);
+      vertical-align: middle;
+      margin-left: 2px;
+      animation: blink 0.8s steps(1) infinite;
+    }
+ 
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0; }
+    }
+ 
+    /* ══ START BUTTON ══ */
+    .start-btn {
+      display: none;
+      margin-top: 1.5rem;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.6rem;
+      background: var(--red);
+      color: var(--paper);
+      border: none;
+      padding: 0.9rem 2rem;
+      cursor: pointer;
+      box-shadow: 4px 4px 0 var(--red-dark);
+      letter-spacing: 0.1em;
+      transition: none;
+      width: 100%;
+    }
+    .start-btn:hover {
+      background: var(--red-dark);
+      transform: translate(2px, 2px);
+      box-shadow: 2px 2px 0 var(--red-dark);
+    }
+ 
+    /* ══ OUTCOME ══ */
+    .outcome-scene {
+      width: 100%;
+      height: 240px;
+      overflow: hidden;
+      border: 3px solid var(--pixel-border);
+      border-bottom: none;
+      image-rendering: pixelated;
+    }
+    .outcome-scene img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+    }
+ 
+    .outcome-box {
+      border: 3px solid var(--pixel-border);
+      padding: 0;
+    }
+    .outcome-box.win { background: #1a2e1a; border-color: var(--gold); }
+    .outcome-box.lose { background: var(--panel); border-color: var(--muted); }
+ 
+    .outcome-top {
+      padding: 4px 12px;
+      display: flex;
+      align-items: center;
+    }
+    .outcome-box.win .outcome-top { background: var(--gold); }
+    .outcome-box.lose .outcome-top { background: var(--muted); }
+ 
+    .outcome-top-label {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.45rem;
+      color: var(--ink);
+      letter-spacing: 0.1em;
+    }
+ 
+    .outcome-inner {
+      padding: 1.5rem 1.75rem;
+      text-align: center;
+    }
+ 
+    .outcome-headline {
+      font-family: 'Press Start 2P', monospace;
+      font-size: clamp(0.65rem, 2vw, 0.9rem);
+      line-height: 2;
+      margin-bottom: 1rem;
+    }
+    .outcome-box.win .outcome-headline { color: var(--gold); }
+    .outcome-box.lose .outcome-headline { color: var(--paper); }
+ 
+    .outcome-body {
+      font-family: 'VT323', monospace;
+      font-size: 1.2rem;
+      line-height: 1.6;
+      color: var(--paper-dark);
+      margin-bottom: 1.25rem;
+      max-width: 480px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+ 
+    .choice-recap {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-bottom: 1.25rem;
+      align-items: center;
+    }
+    .recap-pill {
+      font-family: 'VT323', monospace;
+      font-size: 1rem;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.15);
+      padding: 3px 12px;
+      color: var(--paper-dark);
+    }
+ 
+    .pixel-link-btn {
+      display: block;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.5rem;
+      padding: 0.8rem 1rem;
+      text-decoration: none;
+      text-align: center;
+      letter-spacing: 0.08em;
+      margin-bottom: 8px;
+      transition: none;
+    }
+    .pixel-link-btn.primary {
+      background: var(--red);
+      color: var(--paper);
+      border: none;
+      box-shadow: 3px 3px 0 var(--red-dark);
+    }
+    .pixel-link-btn.primary:hover {
+      transform: translate(1px, 1px);
+      box-shadow: 2px 2px 0 var(--red-dark);
+    }
+    .pixel-link-btn.secondary {
+      background: transparent;
+      color: var(--muted);
+      border: 2px solid var(--muted);
+    }
+    .pixel-link-btn.secondary:hover { color: var(--paper); border-color: var(--paper); }
+ 
+    .again-btn {
+      display: block;
+      width: 100%;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.45rem;
+      background: transparent;
+      border: 2px solid var(--muted);
+      color: var(--muted);
+      padding: 0.6rem;
+      cursor: pointer;
+      letter-spacing: 0.08em;
+      margin-top: 6px;
+    }
+    .again-btn:hover { border-color: var(--paper); color: var(--paper); }
+ 
+    /* ══ COMING SOON (video placeholder removed, now full) ══ */
+ 
+    /* ══ VIDEO TOPIC Q ══ */
+    #screen-video-time .dialogue-text { /* reuse same styles */ }
+ 
+    @media (max-width: 480px) {
+      .scene-img-wrap { height: 160px; }
+      .intro-scene { height: 180px; }
+      .outcome-scene { height: 160px; }
+      .dialogue-inner { padding: 1rem; }
+      .intro-inner { padding: 1rem; }
+    }
+  </style>
+</head>
+<body>
+ 
+<!-- ══════════════════════════════════════
+     INTRO
+══════════════════════════════════════ -->
+<div id="screen-intro" class="screen active">
+  <div class="intro-scene">
+    <img src="../images/ellanewsroom.jpeg" alt="Ella in the newsroom" />
+  </div>
+  <div class="intro-dialogue">
+    <div class="dialogue-top">
+      <span class="speaker">THE NEWSROOM</span>
+      <div class="d-dots"><span></span><span></span><span></span></div>
+    </div>
+    <div class="intro-inner">
+      <div class="masthead">★ <span>ELLA HABERMEYER</span> ★<br/>JOURNALISM SIMULATOR</div>
+      <div id="typewriter-text"></div>
+      <button class="start-btn" id="start-btn" onclick="goTo('screen-format')">▶ START YOUR STORY</button>
+    </div>
+  </div>
+</div>
+ 
+<!-- ══════════════════════════════════════
+     Q1: FORMAT
+══════════════════════════════════════ -->
+<div id="screen-format" class="screen">
+  <div class="scene">
+    <div class="scene-img-wrap">
+      <img id="format-img" src="../images/ellanewsroom.jpeg" alt="Newsroom" />
+    </div>
+    <div class="dialogue-box">
+      <div class="dialogue-top">
+        <span class="speaker">EDITOR</span>
+        <div class="d-dots"><span></span><span></span><span></span></div>
+      </div>
+      <div class="dialogue-inner">
+        <div class="progress-wrap">
+          <div class="progress-pip done"></div>
+          <div class="progress-pip"></div>
+          <div class="progress-pip"></div>
+          <div class="progress-pip"></div>
+        </div>
+        <div class="eyebrow">Step 01 — Format</div>
+        <div class="dialogue-text">What do you want to work on today?</div>
+        <div class="choices">
+          <button class="choice-btn" onclick="choose('format','print'); updateFormatImg('../images/ellawithpencilinnewsroom.jpeg'); goTo('screen-topic')">
+            <span class="choice-letter">A</span>
+            <span>Print article — dig into a story, report it out, write it up</span>
+          </button>
+          <button class="choice-btn" onclick="choose('format','video'); updateFormatImg('../images/ellawithcameranewsroom.jpeg'); goTo('screen-video-topic')">
+            <span class="choice-letter">B</span>
+            <span>Video package — get on camera and bring the story to life</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+ 
+<!-- ══════════════════════════════════════
+     Q2-PRINT: TOPIC
+══════════════════════════════════════ -->
+<div id="screen-topic" class="screen">
+  <div class="scene">
+    <div class="scene-img-wrap">
+      <img src="../images/ellawithpencilinnewsroom.jpeg" alt="Ella with pencil" />
+    </div>
+    <div class="dialogue-box">
+      <div class="dialogue-top">
+        <span class="speaker">EDITOR</span>
+        <div class="d-dots"><span></span><span></span><span></span></div>
+      </div>
+      <div class="dialogue-inner">
+        <div class="progress-wrap">
+          <div class="progress-pip done"></div>
+          <div class="progress-pip done"></div>
+          <div class="progress-pip"></div>
+          <div class="progress-pip"></div>
+        </div>
+        <div class="eyebrow">Step 02 — Story</div>
+        <div class="dialogue-text">What issue sounds most interesting right now?</div>
+        <div class="choices">
+          <button class="choice-btn" onclick="choose('topic','political'); goTo('screen-interview')">
+            <span class="choice-letter">A</span>
+            <span>Political scandal — a primary candidate is pressuring every other candidate to drop out of the race</span>
+          </button>
+          <button class="choice-btn" onclick="choose('topic','water'); goTo('screen-interview')">
+            <span class="choice-letter">B</span>
+            <span>A new Southern Utah development that will consume 150 million gallons of water per year</span>
+          </button>
+          <button class="choice-btn" onclick="choose('topic','amphitheater'); goTo('screen-interview')">
+            <span class="choice-letter">C</span>
+            <span>A controversial 20,000-seat amphitheater at the base of Provo Canyon</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+ 
+<!-- ══════════════════════════════════════
+     Q3-PRINT: INTERVIEW (dynamic)
+══════════════════════════════════════ -->
+<div id="screen-interview" class="screen">
+  <div class="scene">
+    <div class="scene-img-wrap">
+      <img id="interview-img" src="../images/ellanewsroom.jpeg" alt="On location" />
+    </div>
+    <div class="dialogue-box">
+      <div class="dialogue-top">
+        <span class="speaker">ELLA</span>
+        <div class="d-dots"><span></span><span></span><span></span></div>
+      </div>
+      <div class="dialogue-inner">
+        <div class="progress-wrap">
+          <div class="progress-pip done"></div>
+          <div class="progress-pip done"></div>
+          <div class="progress-pip done"></div>
+          <div class="progress-pip"></div>
+        </div>
+        <div class="eyebrow">Step 03 — Sources</div>
+        <div class="dialogue-text" id="interview-question">Who do you choose to interview?</div>
+        <div class="choices" id="interview-choices"></div>
+      </div>
+    </div>
+  </div>
+</div>
+ 
+<!-- ══════════════════════════════════════
+     Q4-PRINT: TIME
+══════════════════════════════════════ -->
+<div id="screen-time" class="screen">
+  <div class="scene">
+    <div class="scene-img-wrap">
+      <img id="time-img" src="../images/ellawithpencilinnewsroom.jpeg" alt="Writing" />
+    </div>
+    <div class="dialogue-box">
+      <div class="dialogue-top">
+        <span class="speaker">EDITOR</span>
+        <div class="d-dots"><span></span><span></span><span></span></div>
+      </div>
+      <div class="dialogue-inner">
+        <div class="progress-wrap">
+          <div class="progress-pip done"></div>
+          <div class="progress-pip done"></div>
+          <div class="progress-pip done"></div>
+          <div class="progress-pip done"></div>
+        </div>
+        <div class="eyebrow">Step 04 — Deadline</div>
+        <div class="dialogue-text">How long do you take to write the article?</div>
+        <div class="choices">
+          <button class="choice-btn" onclick="choose('time','A'); resolveStory()">
+            <span class="choice-letter">A</span>
+            <span>1 hour — file it fast, move on</span>
+          </button>
+          <button class="choice-btn" onclick="choose('time','B'); resolveStory()">
+            <span class="choice-letter">B</span>
+            <span>1 day — give it room to breathe</span>
+          </button>
+          <button class="choice-btn" onclick="choose('time','C'); resolveStory()">
+            <span class="choice-letter">C</span>
+            <span>3–4 days — do it right</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+ 
+<!-- ══════════════════════════════════════
+     Q2-VIDEO: TOPIC
+══════════════════════════════════════ -->
+<div id="screen-video-topic" class="screen">
+  <div class="scene">
+    <div class="scene-img-wrap">
+      <img src="../images/ellawithcameranewsroom.jpeg" alt="Ella with camera" />
+    </div>
+    <div class="dialogue-box">
+      <div class="dialogue-top">
+        <span class="speaker">EDITOR</span>
+        <div class="d-dots"><span></span><span></span><span></span></div>
+      </div>
+      <div class="dialogue-inner">
+        <div class="progress-wrap">
+          <div class="progress-pip done"></div>
+          <div class="progress-pip done"></div>
+          <div class="progress-pip"></div>
+          <div class="progress-pip"></div>
+        </div>
+        <div class="eyebrow">Step 02 — Story</div>
+        <div class="dialogue-text">What issue sounds most interesting right now?</div>
+        <div class="choices">
+          <button class="choice-btn" onclick="choose('topic','busrodeo'); goTo('screen-video-interview')">
+            <span class="choice-letter">A</span>
+            <span>International Bus Road-eo rides into Salt Lake City</span>
+          </button>
+          <button class="choice-btn" onclick="choose('topic','chef'); goTo('screen-video-interview')">
+            <span class="choice-letter">B</span>
+            <span>BYU chef wins culinary challenge, moves on to nationals</span>
+          </button>
+          <button class="choice-btn" onclick="choose('topic','saltvid'); goTo('screen-video-interview')">
+            <span class="choice-letter">C</span>
+            <span>Sundance documentary focuses on the fight to save Great Salt Lake</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+ 
+<!-- ══════════════════════════════════════
+     Q3-VIDEO: INTERVIEW (dynamic)
+══════════════════════════════════════ -->
+<div id="screen-video-interview" class="screen">
+  <div class="scene">
+    <div class="scene-img-wrap">
+      <img id="video-interview-img" src="../images/ellawithcameranewsroom.jpeg" alt="On location" />
+    </div>
+    <div class="dialogue-box">
+      <div class="dialogue-top">
+        <span class="speaker">ELLA</span>
+        <div class="d-dots"><span></span><span></span><span></span></div>
+      </div>
+      <div class="dialogue-inner">
+        <div class="progress-wrap">
+          <div class="progress-pip done"></div>
+          <div class="progress-pip done"></div>
+          <div class="progress-pip done"></div>
+          <div class="progress-pip"></div>
+        </div>
+        <div class="eyebrow">Step 03 — Sources</div>
+        <div class="dialogue-text" id="video-interview-question">Who do you choose to interview?</div>
+        <div class="choices" id="video-interview-choices"></div>
+      </div>
+    </div>
+  </div>
+</div>
+ 
+<!-- ══════════════════════════════════════
+     Q4-VIDEO: TIME
+══════════════════════════════════════ -->
+<div id="screen-video-time" class="screen">
+  <div class="scene">
+    <div class="scene-img-wrap">
+      <img src="../images/ellawithcameranewsroom.jpeg" alt="Editing video" />
+    </div>
+    <div class="dialogue-box">
+      <div class="dialogue-top">
+        <span class="speaker">EDITOR</span>
+        <div class="d-dots"><span></span><span></span><span></span></div>
+      </div>
+      <div class="dialogue-inner">
+        <div class="progress-wrap">
+          <div class="progress-pip done"></div>
+          <div class="progress-pip done"></div>
+          <div class="progress-pip done"></div>
+          <div class="progress-pip done"></div>
+        </div>
+        <div class="eyebrow">Step 04 — Edit Bay</div>
+        <div class="dialogue-text">How long do you take to finish editing the video package?</div>
+        <div class="choices">
+          <button class="choice-btn" onclick="choose('time','A'); resolveStory()">
+            <span class="choice-letter">A</span>
+            <span>6 hours — quick cut, get it out</span>
+          </button>
+          <button class="choice-btn" onclick="choose('time','B'); resolveStory()">
+            <span class="choice-letter">B</span>
+            <span>1 day — polish it up</span>
+          </button>
+          <button class="choice-btn" onclick="choose('time','C'); resolveStory()">
+            <span class="choice-letter">C</span>
+            <span>3–4 days — cinematic perfection</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+ 
+<!-- ══════════════════════════════════════
+     WIN
+══════════════════════════════════════ -->
+<div id="screen-win" class="screen">
+  <div class="outcome-scene">
+    <img src="../images/ellahappyfrontpage.jpeg" alt="Front page!" />
+  </div>
+  <div class="outcome-box win">
+    <div class="outcome-top">
+      <span class="outcome-top-label">★ BREAKING NEWS ★</span>
+    </div>
+    <div class="outcome-inner">
+      <div class="outcome-headline">YOU LANDED<br/>THE FRONT PAGE!</div>
+      <div class="outcome-body" id="win-body">Your instincts were sharp. The right sources, the right story, the right amount of time. The editor loved it — and so did readers.</div>
+      <div class="choice-recap" id="win-recap"></div>
+      <a id="win-link" href="#" target="_blank" class="pixel-link-btn primary">▶ READ THE PUBLISHED STORY</a>
+      <a href="index.html" class="pixel-link-btn secondary">→ VIEW MY PORTFOLIO</a>
+      <button class="again-btn" onclick="restart()">↺ PLAY AGAIN</button>
+    </div>
+  </div>
+</div>
+ 
+<!-- ══════════════════════════════════════
+     LOSE
+══════════════════════════════════════ -->
+<div id="screen-lose" class="screen">
+  <div class="outcome-scene">
+    <img src="../images/ellasadfrontpage.jpeg" alt="Didn't make it" />
+  </div>
+  <div class="outcome-box lose">
+    <div class="outcome-top">
+      <span class="outcome-top-label">BETTER LUCK NEXT EDITION</span>
+    </div>
+    <div class="outcome-inner">
+      <div class="outcome-headline" style="color:var(--paper);">DIDN'T MAKE<br/>THE FRONT PAGE.</div>
+      <div class="outcome-body" id="lose-body">The story had potential — but the approach left something to be desired. The editor buried it. Still, the work speaks for itself.</div>
+      <div class="choice-recap" id="lose-recap"></div>
+      <a id="lose-link" href="#" target="_blank" class="pixel-link-btn primary">▶ READ IT ANYWAY</a>
+      <a href="index.html" class="pixel-link-btn secondary">→ VIEW MY PORTFOLIO</a>
+      <button class="again-btn" onclick="restart()">↺ TRY AGAIN</button>
+    </div>
+  </div>
+</div>
+ 
+<!-- ══════════════════════════════════════
+     SCRIPT
+══════════════════════════════════════ -->
+<script>
+  const choices = {};
+ 
+  // ── Article URLs: replace with real links ──
+  const articles = {
+    // PRINT
+    political:    'https://universe.byu.edu/metro/blouin-urges-rivals-to-drop-out-as-utahs-1st-district-primary-nears',
+    water:        'https://universe.byu.edu/metro/zion-shores-surf-community-project-draws-questions-about-water-use',
+    amphitheater: 'https://universe.byu.edu/metro/community-voices-concerns-about-proposed-vesper-amphitheater',
+    // VIDEO
+    busrodeo:     'https://universe.byu.edu/metro/international-bus-road-eo-rides-into-salt-lake-city',
+    chef:         'https://universe.byu.edu/campus/byu-chef-wins-culinary-challenge-moves-on-to-nationals',
+    saltvid:      'https://universe.byu.edu/metro/sundance-documentary-focuses-on-the-fight-to-save-great-salt-lake',
+  };
+ 
+  // ── Scene images per topic ──
+  const topicImages = {
+    political:    '../images/ellapolitical.jpeg',
+    water:        '../images/ellawater.jpeg',
+    amphitheater: '../images/elladevelopment.jpeg',
+    busrodeo:     '../images/ellabus.jpeg',
+    chef:         '../images/ellakitchen.jpeg',
+    saltvid:      '../images/ellamovie.jpeg',
+  };
+ 
+  // ── Interview data ──
+  const interviewData = {
+    // PRINT
+    political: {
+      q: 'You\'re covering the political scandal. Who do you interview?',
+      opts: [
+        { l: 'A', t: 'The candidate pressuring others to drop out of the race' },
+        { l: 'B', t: 'A political science professor' },
+        { l: 'C', t: 'A high school student' },
+      ]
+    },
+    water: {
+      q: 'You\'re covering the Southern Utah water story. Who do you interview?',
+      opts: [
+        { l: 'A', t: 'The founder, development team, and mayor for the project' },
+        { l: 'B', t: 'A citizen from a town neighboring Washington County' },
+        { l: 'C', t: 'Someone with strong personal opinions about water usage' },
+      ]
+    },
+    amphitheater: {
+      q: 'You\'re covering the Provo Canyon amphitheater. Who do you interview?',
+      opts: [
+        { l: 'A', t: 'The mayor and development team behind the project' },
+        { l: 'B', t: 'Concerned citizens in Utah County' },
+        { l: 'C', t: 'Someone who lived in Provo Canyon 30 years ago' },
+      ]
+    },
+    // VIDEO
+    busrodeo: {
+      q: 'You\'re covering the International Bus Road-eo. Who do you interview?',
+      opts: [
+        { l: 'A', t: 'A bus driver competing in the contest' },
+        { l: 'B', t: 'Someone who works at UTA' },
+        { l: 'C', t: 'Someone who takes the bus regularly' },
+      ]
+    },
+    chef: {
+      q: 'You\'re covering the BYU chef story. Who do you interview?',
+      opts: [
+        { l: 'A', t: 'The chef who won the competition' },
+        { l: 'B', t: 'Someone who works alongside the chef' },
+        { l: 'C', t: 'Someone who really loves food' },
+      ]
+    },
+    saltvid: {
+      q: 'You\'re covering the Great Salt Lake documentary. Who do you interview?',
+      opts: [
+        { l: 'A', t: 'The film directors' },
+        { l: 'B', t: 'A BYU professor involved with the documentary' },
+        { l: 'C', t: 'Someone who watched the documentary' },
+      ]
+    },
+  };
+ 
+  const choiceLabels = {
+    topic: {
+      political: 'Political scandal',
+      water: 'Southern Utah water story',
+      amphitheater: 'Provo Canyon amphitheater',
+      busrodeo: 'International Bus Road-eo',
+      chef: 'BYU chef story',
+      saltvid: 'Great Salt Lake documentary',
+    },
+    interview: { A: 'Primary source (A)', B: 'Secondary source (B)', C: 'Casual voice (C)' },
+    time: { A: 'Fast turnaround', B: '1-day deadline', C: '3–4 day deep dive' },
+  };
+ 
+  function choose(key, val) { choices[key] = val; }
+ 
+  function updateFormatImg(src) {
+    document.getElementById('format-img').src = src;
+  }
+ 
+  function goTo(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (id === 'screen-interview') buildInterviewScreen(false);
+    if (id === 'screen-video-interview') buildInterviewScreen(true);
+  }
+ 
+  function buildInterviewScreen(isVideo) {
+    const topic = choices['topic'];
+    const data = interviewData[topic];
+    const imgEl = isVideo
+      ? document.getElementById('video-interview-img')
+      : document.getElementById('interview-img');
+    imgEl.src = topicImages[topic] || 'ellanewsroom.jpeg';
+ 
+    const qEl = document.getElementById(isVideo ? 'video-interview-question' : 'interview-question');
+    const cEl = document.getElementById(isVideo ? 'video-interview-choices' : 'interview-choices');
+    qEl.textContent = data.q;
+    cEl.innerHTML = '';
+    data.opts.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.className = 'choice-btn';
+      btn.innerHTML = `<span class="choice-letter">${opt.l}</span><span>${opt.t}</span>`;
+      const nextScreen = isVideo ? 'screen-video-time' : 'screen-time';
+      btn.onclick = () => { choose('interview', opt.l); goTo(nextScreen); };
+      cEl.appendChild(btn);
+    });
+  }
+ 
+  function isFrontPage() {
+    const i = choices['interview'], t = choices['time'];
+    return ['AA','AB','BA'].includes(i + t);
+  }
+ 
+  function buildRecap(containerId) {
+    const el = document.getElementById(containerId);
+    el.innerHTML = '';
+    ['topic', 'interview', 'time'].forEach(k => {
+      const pill = document.createElement('div');
+      pill.className = 'recap-pill';
+      pill.textContent = choiceLabels[k]?.[choices[k]] ?? choices[k];
+      el.appendChild(pill);
+    });
+  }
+ 
+  function resolveStory() {
+    const topic = choices['topic'];
+    const url = articles[topic] || '#';
+    if (isFrontPage()) {
+      buildRecap('win-recap');
+      document.getElementById('win-link').href = url;
+      goTo('screen-win');
+    } else {
+      buildRecap('lose-recap');
+      document.getElementById('lose-link').href = url;
+      goTo('screen-lose');
+    }
+  }
+ 
+  function restart() {
+    Object.keys(choices).forEach(k => delete choices[k]);
+    document.getElementById('format-img').src = 'ellanewsroom.jpeg';
+    goTo('screen-intro');
+    startTypewriter();
+  }
+ 
+  // ── Typewriter ──
+  const introText = "You're a journalist with a story to tell.\n\nEvery decision you make — from who you interview to how long you take — will determine whether your work lands on the front page.\n\nChoose wisely.";
+ 
+  function startTypewriter() {
+    const el = document.getElementById('typewriter-text');
+    const btn = document.getElementById('start-btn');
+    el.innerHTML = '';
+    btn.style.display = 'none';
+    let i = 0;
+    const iv = setInterval(() => {
+      if (i < introText.length) {
+        const c = introText[i];
+        el.innerHTML += c === '\n' ? '<br/>' : c;
+        i++;
+      } else {
+        clearInterval(iv);
+        btn.style.display = 'block';
+      }
+    }, 22);
+  }
+ 
+  window.addEventListener('DOMContentLoaded', startTypewriter);
+</script>
+</body>
+</html>

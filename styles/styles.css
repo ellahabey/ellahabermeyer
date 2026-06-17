@@ -1,0 +1,83 @@
+/*STYLE GUIDE FOR INDEX*/
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&family=Playfair+Display:wght@700&display=swap');
+
+/*Apply body font and background image*/
+body {
+    margin: 0.5em;
+    padding:0;
+  font-family: 'Nunito', Arial, sans-serif;
+    background-image: url("../images/papercrumple.jpg");
+    background-size: cover;
+}
+
+/*Control the image size */
+.headshot {
+    display: block;
+    margin: 0 auto;
+    height:195px;
+}
+/*Name gets a fancier, distinct font*/
+h1 {
+    font-family: 'Playfair Display', Georgia,serif;
+    font-weight: bold;
+    color:rgb(114, 16, 65);
+    font-size: 2.5em;
+    text-align: center;
+}
+
+/*Hero section -- remove default spacing */
+.hero {
+    text-align: center;
+    margin: 0.5em;
+    padding: 0;
+}
+
+/*Unvisited links = pink */
+a {
+    color: rgb(182, 15, 81);
+}
+/*Visited links = purple */
+a:visited {
+    color: rgb(98, 6, 94);
+}
+
+.section {
+   padding: 20px; 
+}
+
+.site-footer {
+    text-align: center;
+    font-size: 0.8em;
+    color: #555;
+    font-style: italic;
+}
+
+.game-container {
+    position: relative;
+    display: block;
+    text-align: center;
+}
+.play-button {
+    position: relative;
+    display: inline-block;
+    background-color: hotpink;
+    color: white;
+    font-family: Nunito, Arial, sans-serif;
+    font-weight: bold;
+    padding: 8px 16px;
+    text-decoration: none;
+}
+
+h2{
+    text-align: center;
+    font-family: 'Playfair Display', Georgia, serif;
+    color: rgb(114, 16, 65);
+}
+
+.tagline {
+    text-align: center;
+}
+
+.byline-note {
+    text-align:center;
+}
